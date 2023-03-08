@@ -86,7 +86,7 @@ Token GetNextToken()
           c = getc(fp);
           if (c == '/') {
               // Line comment - skip until end of line
-              while (c != '\n') {
+              while (c != '\n' && c != EOFile) {
                   //advance();
                   c = getc(fp);
               }
@@ -95,8 +95,9 @@ Token GetNextToken()
               // Block comment - skip until end of block
               //advance();
               c = getc(fp);
-              while (c != '\0') {
-                  if (c == '*') {
+              int prev =' ';
+              while (c != '\0') { //while (c != EOFile)
+                  if (c == '*') { //if (prev == '*' && c == '/') 
                       //advance();
                       c = getc(fp);
                       if (c == '/') {
@@ -109,12 +110,138 @@ Token GetNextToken()
                   }
               }
           
-          // } else {
-          //     // Not a comment
-          //     t.t = ERR;
-          //     t.value = "";
-          //     return t;
-          //}
+
+
+
+
+  while (isspace(c) || c == '/') {
+        if (c == '/') {
+            // Check for comment
+            c = getc(fp);
+            if (c == '/') {
+                // Line comment - skip until end of line
+                while (c != '\n' && c != EOFile) {
+                    c = getc(fp);
+                }
+            } else if (c == '*') {
+                // Block comment - skip until end of block
+                c = getc(fp);
+                int prev = ' ';
+                while (c != EOFile) {
+                    if (prev == '*' && c == '/') {
+                        break;
+                    }
+                    prev = c;
+                    c = getc(fp);
+                }
+                if (c == EOFile) {
+                    printf("Error: Unterminated block comment\n");
+                    t.t = ERR;
+                    return t;
+                }
+                // Advance to the next character after the end of the block comment
+                c = getc(fp);
+            } else {
+                // Not a comment
+                ungetc(c, fp);
+                break;
+            }
+        } else {
+            c = getc(fp);
+        }
+    }
+
+    // Check for EOF
+    if (c == EOFile) {
+        strcpy(t.value, "EOFile");
+        t.t = EOFile;
+        return t;
+    }
+
+    // Check if Character is a letter
+    if (isalpha(c) || c == '_') {
+        char temp[128];
+        int i = 0;
+        while (isalnum(c) || c == '_') {
+            temp[i++] = c;
+            c = getc(fp);
+        }
+        temp[i] = '\0';
+        ungetc(c, fp);
+
+        for (int j = 0; j < NUM_KEYWORDS; j++) {
+            if (strcmp(temp, keywords[j]) == 0) {
+                strcpy(t.value, temp);
+                t.t = j;
+                return t;
+            }
+        }
+        strcpy(t.value, temp);
+        t.t = id;
+        return t;
+    }
+
+    // Check if Character is a digit
+    if (isdigit(c)) {
+        char temp[128];
+        int i = 0;
+        while (isdigit(c)) {
+            temp[i++] = c;
+            c = getc(fp);
+        }
+        temp[i] = '\0';
+        ungetc(c, fp);
+        strcpy(t.value, temp);
+        t.t = number;
+        return t;
+    }
+
+    // Check for symbols
+    for (int j = 0; j < NUM_SYMBOLS; j++) {
+        if (c == symbols[j].c) {
+            t.t = symbols[j].t;
+            strcpy(t.value, symbols[j].s);
+            return t;
+        }
+    }
+
+    // Invalid character
+    printf("Error: Invalid character %c\n", c);
+    t.t = ERR;
+    return t;
+}
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             } else {
               c = getc(fp);
             }
@@ -177,7 +304,6 @@ Token GetNextToken()
           return t;
         }
       }
-      //Hello world
 
     
      
@@ -199,28 +325,172 @@ Token GetNextToken()
 
 
 // peek (look) at the next token in the source file without removing it from the stream
-Token PeekNextToken ()
-{
-  Token t;
-  t.t = ERR;
-  return t;
-}
 
-// clean out at end, e.g. close files, free memory, ... etc
-int StopLexer ()
-{
-	return 0;
-}
 
-// do not remove the next line
-#ifndef TEST
-int main ()
-{
-	// implement your main function here
-  // NOTE: the autograder will not use your main function
+// Token PeekNextToken ()
+// {
+//   Token t;
+  
+//   nextToken = GetNextToken(t)
+
+
+//   //t.t = ERR;
+//   return nextToken;  
+// }
+
+// Token PeekNextToken(Lexer* lexer) {
+//     Token* nextToken = GetNextToken(lexer);
+//     lexer->pos--;
+//     lexer->currentPos--;
+//     Token peekedToken = *nextToken;
+//     free(nextToken);
+//     return peekedToken;
+// }
+
+
+
+
+
+// // clean out at end, e.g. close files, free memory, ... etc
+// int StopLexer ()
+// {
+// 	return 0;
+// }
+
+// int StopLexer(Lexer* lexer) {
+//     if (lexer == NULL) {
+//         return 1;
+//     }
+//     if (lexer->inputStream != NULL) {
+//         fclose(lexer->inputStream);
+//     }
+//     free(lexer);
+//     return 0;
+// }
+
+
+
+// // do not remove the next line
+// #ifndef TEST
+// int main ()
+// {
+// 	// implement your main function here
+//   // NOTE: the autograder will not use your main function
 
   
-	return 0;
-}
-// do not remove the next line
-#endif
+// 	return 0;
+// }
+// // do not remove the next line
+// #endif
+
+
+
+
+
+
+
+
+
+
+// Token GetNextToken()
+// {
+//     Token t;
+//     int c = getc(fp);
+
+//     // Skip white space and comments
+//     while (isspace(c) || c == '/') {
+//         if (c == '/') {
+//             // Check for comment
+//             c = getc(fp);
+//             if (c == '/') {
+//                 // Line comment - skip until end of line
+//                 while (c != '\n' && c != EOFile) {
+//                     c = getc(fp);
+//                 }
+//             } else if (c == '*') {
+//                 // Block comment - skip until end of block
+//                 c = getc(fp);
+//                 int prev = ' ';
+//                 while (c != EOFile) {
+//                     if (prev == '*' && c == '/') {
+//                         break;
+//                     }
+//                     prev = c;
+//                     c = getc(fp);
+//                 }
+//                 if (c == EOFile) {
+//                     printf("Error: Unterminated block comment\n");
+//                     t.t = ERR;
+//                     return t;
+//                 }
+//                 // Advance to the next character after the end of the block comment
+//                 c = getc(fp);
+//             } else {
+//                 // Not a comment
+//                 ungetc(c, fp);
+//                 break;
+//             }
+//         } else {
+//             c = getc(fp);
+//         }
+//     }
+
+//     // Check for EOF
+//     if (c == EOFile) {
+//         strcpy(t.value, "EOFile");
+//         t.t = EOFile;
+//         return t;
+//     }
+
+//     // Check if Character is a letter
+//     if (isalpha(c) || c == '_') {
+//         char temp[128];
+//         int i = 0;
+//         while (isalnum(c) || c == '_') {
+//             temp[i++] = c;
+//             c = getc(fp);
+//         }
+//         temp[i] = '\0';
+//         ungetc(c, fp);
+
+//         for (int j = 0; j < NUM_KEYWORDS; j++) {
+//             if (strcmp(temp, keywords[j]) == 0) {
+//                 strcpy(t.value, temp);
+//                 t.t = j;
+//                 return t;
+//             }
+//         }
+//         strcpy(t.value, temp);
+//         t.t = id;
+//         return t;
+//     }
+
+//     // Check if Character is a digit
+//     if (isdigit(c)) {
+//         char temp[128];
+//         int i = 0;
+//         while (isdigit(c)) {
+//             temp[i++] = c;
+//             c = getc(fp);
+//         }
+//         temp[i] = '\0';
+//         ungetc(c, fp);
+//         strcpy(t.value, temp);
+//         t.t = number;
+//         return t;
+//     }
+
+//     // Check for symbols
+//     for (int j = 0; j < NUM_SYMBOLS; j++) {
+//         if (c == symbols[j].c) {
+//             t.t = symbols[j].t;
+//             strcpy(t.value, symbols[j].s);
+//             return t;
+//         }
+//     }
+
+//     // Invalid character
+//     printf("Error: Invalid character %c\n", c);
+//     t.t = ERR;
+//     return t;
+// }
