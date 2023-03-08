@@ -24,9 +24,16 @@ Date Work Commenced:
 
 // YOU CAN ADD YOUR OWN FUNCTIONS, DECLARATIONS AND VARIABLES HERE
 
+typedef enum TT {keyword, id, sym, err, eof} TokenTypes;
 
 
+typedef struct {
+    TokenTypes t;
+    char value[128];
+} Token;
 
+
+FILE* fp;
 
 
 // IMPLEMENT THE FOLLOWING functions
@@ -38,8 +45,17 @@ Date Work Commenced:
 // If an error occurs, the function should return 0
 // if everything goes well the function should return 1
 int InitLexer (char* file_name)
+
 {
-  return 0;
+
+  fp = fopen("Ball.jack_tokens.txt", "r");
+
+  if (fp == NULL) {
+    printf("Error opening file");
+    return 0; //error
+    }
+
+    return 1; //success
 }
 
 
@@ -47,6 +63,7 @@ int InitLexer (char* file_name)
 Token GetNextToken ()
 {
 	Token t;
+  int c = getc(fp);
   t.tp = ERR;
   return t;
 }
