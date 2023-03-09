@@ -94,7 +94,6 @@ Token GetNextToken() {
         }
         if (c == EOFile) {
           strcpy(t.lx, "Error: unexpected eof in comment");
-          t.tp = ERR;
           return t;
         }
         // Advance to the next character after the end of the block comment
@@ -117,8 +116,7 @@ Token GetNextToken() {
 
     // Check for EOF
   if (c == -1) {
-    strcpy(t.value, "EOFile");
-    t.tp = EOFile;
+    strcpy(t.tp, EOFile);
     return t;
   }
 
@@ -132,7 +130,7 @@ Token GetNextToken() {
   while (isalpha(c)) {
     temp[i] = c;
     i += 1;
-    c = get(c);
+    c = getc(fp);
   }
   temp[i] = '/0';
 
@@ -140,39 +138,37 @@ Token GetNextToken() {
   for (int j = 0; j< 1; j++) {
     if (strcmp(temp, keywords[j]) == 0) {
       if (strcmp(temp, keywords[j] == 0)) {
-        strcpy(t.value, temp);
-        t.tp = RESWORD;
+        strcpy(t.tp, RESWORD);
         return t;
       } else {
-        strcpy(t.value, temp);
-        t.tp = id;
+        strcpy(t.tp, ID);
         return t;
       }
     }
+  }
   } else if (isdigit(c)) {
 
       while (isdigit(c)) {
       temp[i] = c;
       i += 1;
-      c = get(c);
+      c = getc(fp);
     }
-    temp[i] = '/0';
+    temp[i] = '/0'
+  }
 
 
     for (int j = 0; j< 1; j++) {
       if (strcmp(temp, keywords[j]) == 0) {
         if (strcmp(temp, keywords[j] == 0)) {
-          strcpy(t.value, temp);
-          t.tp = RESWORD;
+          strcpy(t.tp, RESWORD);
           return t;
         } else {
-          strcpy(t.value, temp);
-          t.tp = id;
+          strcpy(t.tp, ID);
           return t;
         }
       }
     }
-  }
+  
 
 
 
@@ -190,10 +186,10 @@ Token GetNextToken() {
       if (i < 128) { // or is it 128 - 1
         temp[i] = c;
         i += 1
-        c = get(c)
+        c = getc(fp)
       } else {
         // Error: string literal is too long
-        fprintf(stderr, "Error: string literal exceeds maximum length of %d characters\n", MAX_LEXEME_LENGTH - 1);
+        strcpy(t.lx, ERR);
         exit(1);
       }
 
@@ -205,7 +201,7 @@ Token GetNextToken() {
     }
 
     // Error: string literal was not terminated
-    fprintf(stderr, "Error: string literal was not terminated\n");
+    strcpy(t.lx, ERR);
     exit(1);
     }
 
@@ -223,23 +219,18 @@ Token GetNextToken() {
   // Check for symbols
   for (int j = 0; j < NUM_SYMBOLS; j++) {
       if (c == symboif (c == -1) {
-    strcpy(t.value, "EOFile");
-    t.tp = EOFile;
+    strcpy(t.tp, EOFile);
     return t;
   }
-
-  char temp[128];
-  int i = 0;
 
 
 
   // Invalid character
-  strcpy(t.lx, "Error: illegal symbol in source file", c);
-  t.tp = ERR;
+  strcpy(t.lx, "Error: illegal symbol in source file");
   return t;
-      }
   }
 }
+
 
     
 
@@ -270,22 +261,45 @@ Token GetNextToken() {
 Token PeekNextToken ()
 {
   Token t;
-  
-  nextToken = GetNextToken(t)
 
+  int c = getc(fp);
+  
 
   //t.tp = ERR;
-  return nextToken;  
+
+  // used to keep track of curent position
+  int start_column;
+  int start_line;
+
+  start_column = column;
+  start_line = line;
+
+  c = getc(fp);
+
+  while (isspace(c)) {
+    if (c == '\n') {
+      line++;
+      column = 0;
+    } else {
+      column++;
+    }
+    c = fgetc(fp);
+  }
+
+  if (c == EOF) {
+    strcpy(t.tp, EOFile);
+    return t;
+  }
+
+  ungetc(c, fp);
+  column = start_column;
+  line = start_line;
+
+  t = GetNextToken();
+  return t;
+
 }
 
-Token PeekNextToken(Lexer* lexer) {
-    Token* nextToken = GetNextToken(lexer);
-    lexer->pos--;
-    lexer->currentPos--;
-    Token peekedToken = *nextToken;
-    free(nextToken);
-    return peekedToken;
-}
 
 
 
@@ -294,18 +308,13 @@ Token PeekNextToken(Lexer* lexer) {
 // clean out at end, e.g. close files, free memory, ... etc
 int StopLexer ()
 {
-	return 0;
-}
-
-int StopLexer(Lexer* lexer) {
-    if (lexer == NULL) {
-        return 1;
-    }
-    if (lexer->inputStream != NULL) {
-        fclose(lexer->inputStream);
-    }
-    free(lexer);
+  if (fp == NULL) {
     return 0;
+  }
+
+  fclose(fp);
+  fp = NULL;
+  return 1;
 }
 
 
