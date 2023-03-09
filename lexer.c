@@ -175,6 +175,51 @@ Token GetNextToken() {
   }
 
 
+
+  // Check for literal String f C is a quote ("), it may be the start of a literal string
+
+
+  if (c == '"') {
+    // Start building the lexeme by adding the opening quote
+    // char lexeme[MAX_LEXEME_LENGTH];
+    // int lexemeLength = 0;
+    temp[i++] = c;
+
+    // Keep reading characters until a closing quote is found or the lexeme exceeds the maximum length
+    while ((c != -1) && (c != '\0')) {
+      if (i < 128) { // or is it 128 - 1
+        temp[i] = c;
+        i += 1
+        c = get(c)
+      } else {
+        // Error: string literal is too long
+        fprintf(stderr, "Error: string literal exceeds maximum length of %d characters\n", MAX_LEXEME_LENGTH - 1);
+        exit(1);
+      }
+
+      // Check for closing quote to end the string literal
+      if (c == '"') {
+        temp[i++] = c;
+        return t;
+      }
+    }
+
+    // Error: string literal was not terminated
+    fprintf(stderr, "Error: string literal was not terminated\n");
+    exit(1);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
   // Check for symbols
   for (int j = 0; j < NUM_SYMBOLS; j++) {
       if (c == symboif (c == -1) {
@@ -186,62 +231,7 @@ Token GetNextToken() {
   char temp[128];
   int i = 0;
 
-  // Check if Character is a letter
-  
-    if (isalpha(c)) {
 
-  while (isalpha(c)) {
-    temp[i] = c;
-    i += 1;
-    c = get(c);
-  }
-  temp[i] = '/0';
-
-
-  for (int j = 0; j< 1; j++) {
-    if (strcmp(temp, keywords[j]) == 0) {
-      if (strcmp(temp, keywords[j] == 0)) {
-        strcpy(t.value, temp);
-        t.tp = RESWORD;
-        return t;
-      } else {
-        strcpy(t.value, temp);
-        t.tp = id;
-        return t;
-      }
-    }
-  } else if (isdigit(c)) {
-
-    while (isdigit(c)) {
-    temp[i] = c;
-    i += 1;
-    c = get(c);
-  }
-  temp[i] = '/0';
-
-
-  for (int j = 0; j< 1; j++) {
-    if (strcmp(temp, keywords[j]) == 0) {
-      if (strcmp(temp, keywords[j] == 0)) {
-        strcpy(t.value, temp);
-        t.tp = RESWORD;
-        return t;
-      } else {
-        strcpy(t.value, temp);
-        t.tp = id;
-        return t;
-      }
-    }
-
-
-  // Check for symbols
-  for (int j = 0; j < NUM_SYMBOLS; j++) {
-      if (c == symbols[j].c) {
-          t.tp = symbols[j].t;
-          strcpy(t.value, symbols[j].s);
-          return t;
-      }
-  }
 
   // Invalid character
   strcpy(t.lx, "Error: illegal symbol in source file", c);
@@ -249,11 +239,6 @@ Token GetNextToken() {
   return t;
       }
   }
-
-  // Invalid character
-  strcpy(t.lx, "Error: illegal symbol in source file", c);
-  t.tp = ERR;
-  return t;
 }
 
     
@@ -279,87 +264,65 @@ Token GetNextToken() {
 
 
 
+//peek (look) at the next token in the source file without removing it from the stream
 
 
-
-
-
-
-
-
- 
-
-
-
-
-
-
-// peek (look) at the next token in the source file without removing it from the stream
-
-
-// Token PeekNextToken ()
-// {
-//   Token t;
+Token PeekNextToken ()
+{
+  Token t;
   
-//   nextToken = GetNextToken(t)
+  nextToken = GetNextToken(t)
 
 
-//   //t.tp = ERR;
-//   return nextToken;  
-// }
+  //t.tp = ERR;
+  return nextToken;  
+}
 
-// Token PeekNextToken(Lexer* lexer) {
-//     Token* nextToken = GetNextToken(lexer);
-//     lexer->pos--;
-//     lexer->currentPos--;
-//     Token peekedToken = *nextToken;
-//     free(nextToken);
-//     return peekedToken;
-// }
-
-
-
-
-
-// // clean out at end, e.g. close files, free memory, ... etc
-// int StopLexer ()
-// {
-// 	return 0;
-// }
-
-// int StopLexer(Lexer* lexer) {
-//     if (lexer == NULL) {
-//         return 1;
-//     }
-//     if (lexer->inputStream != NULL) {
-//         fclose(lexer->inputStream);
-//     }
-//     free(lexer);
-//     return 0;
-// }
+Token PeekNextToken(Lexer* lexer) {
+    Token* nextToken = GetNextToken(lexer);
+    lexer->pos--;
+    lexer->currentPos--;
+    Token peekedToken = *nextToken;
+    free(nextToken);
+    return peekedToken;
+}
 
 
 
-// // do not remove the next line
-// #ifndef TEST
-// int main ()
-// {
-// 	// implement your main function here
-//   // NOTE: the autograder will not use your main function
+
+
+// clean out at end, e.g. close files, free memory, ... etc
+int StopLexer ()
+{
+	return 0;
+}
+
+int StopLexer(Lexer* lexer) {
+    if (lexer == NULL) {
+        return 1;
+    }
+    if (lexer->inputStream != NULL) {
+        fclose(lexer->inputStream);
+    }
+    free(lexer);
+    return 0;
+}
+
+
+
+// do not remove the next line
+#ifndef TEST
+int main ()
+{
+	// implement your main function here
+  // NOTE: the autograder will not use your main function
 
   
-// 	return 0;
-// }
-// // do not remove the next line
-// #endif
+	return 0;
+}
+// do not remove the next line
+#endif
 
 
 
 
-
-
-
-
-
-
-/
