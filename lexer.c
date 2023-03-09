@@ -25,16 +25,19 @@ Date Work Commenced:
 // YOU CAN ADD YOUR OWN FUNCTIONS, DECLARATIONS AND VARIABLES HERE
 
 
-const char* keywords[128] = {
+const char* keywords[] = {
         "class", "constructor", "function", "method", "field",
         "static", "var", "int", "char", "boolean", "void", "true",
         "false", "null", "this", "let", "do", "if", "else", "while", "return"
     };
 
 
-const char* symbols[128] = { "(", ")", "[", "]", "{", "}", ",", ";", "=", ".", "+", 
-"-", "*", "/", "&", "|", "~", "<", ">" };
+char symbols[] = { '(', ')', '[', ']', '{', '}', ',', ';', '=', '.', '+', 
+'-', '*', '/', '&', '|', '~', '<', '>' };
 
+char fileName[] = {"Ball.Jack"};
+// symbols[0]=('(','/0')
+// if(c==symbols[0][0])
 
 
 FILE* fp;
@@ -52,7 +55,7 @@ int InitLexer (char* file_name)
 
 {
 
-  fp = fopen("Ball.jack_tokens.txt", "r"); // should this be the .jack file
+  fp = fopen(file_name, "r"); // should this be the .jack file
 
   if (fp == NULL) {
     printf("Error opening file");
@@ -76,47 +79,38 @@ Token GetNextToken() {
   // char c = *current_char;
 
  
-  while (isspace(c) || c == '/') {
-    if (c == '/') {
-      // Check for comment
-      c = getc(fp);
-      if (c == '/') {
-        // Line comment - skip until end of line
-        while (c != '\n' && c != EOFile) {
-          c = getc(fp);
-        }
-    } else if (c == '*') {
-        // Block comment - skip until end of block
-        c = getc(fp);
-        int prev = ' ';
-        while (c != EOFile) {
-          if (prev == '*' && c == '/') {
-            break;
-          }
-          prev = c;
-          c = getc(fp);
-        }
-        if (c == EOFile) {
-          strcpy(t.lx, "Error: unexpected eof in comment");
-          return t;
-        }
-        // Advance to the next character after the end of the block comment
-        c = getc(fp);
-      } else {
-        // Not a comment
-        ungetc(c, fp);
-        break;
-      }
-    } else {
-        c = getc(fp);
-      }
-  }
-
-
-
-
-
-
+  // while (isspace(c) || c == '/') {
+  //   if (c == '/') {
+  //     // Check for comment
+  //     c = getc(fp);
+  //     if (c == '/') {
+  //       // Line comment - skip until end of line
+  //       while (c != '\n' && c != EOFile) {
+  //         c = getc(fp);
+  //       }
+  //   } else if (c == '*') {
+  //       // Block comment - skip until end of block
+  //       c = getc(fp);
+  //       int prev = ' ';
+  //       while (c != EOFile) {
+  //         if (prev == '*' && c == '/') {
+  //           break;
+  //         }
+  //         prev = c;
+  //         c = getc(fp);
+  //         c = getc(fp);
+  //         } 
+  //         }else {
+  //       // Not a comment
+  //         ungetc(c, fp);
+  //         break;
+  //         }
+  //     } else {
+  //       c = getc(fp);
+  //     }
+  //   }
+  // }
+  
 
     // Check for EOF
   if (c == -1) {
@@ -282,12 +276,7 @@ Token PeekNextToken ()
 
   t = GetNextToken();
   return t;
-
 }
-
-
-
-
 
 
 // clean out at end, e.g. close files, free memory, ... etc
@@ -328,11 +317,24 @@ int main ()
 	// implement your main function here
   // NOTE: the autograder will not use your main function
 
+
+
+  setbuf(stdout, NULL);
+  //fprintf(stdout, "Give the JACK File!");
+  //gets(fileName);
+  InitLexer("Ball.jack");
+
+
+
+
+
+  //c = getc(stdin);
+  //fp = fopen();
   Token t;
 
+  t = GetNextToken();
 
-git
-  printf ("<%s, %i, %s, %s>\n", t.fl, t.ln , t.lx, TokenTypeString (t.tp));
+  printf ("<%s, %i, %s, %s>\n", t.fl, t.ln , t.lx, TokenTypeString(t.tp));
 
   
 	return 0;
