@@ -25,11 +25,15 @@ Date Work Commenced:
 // YOU CAN ADD YOUR OWN FUNCTIONS, DECLARATIONS AND VARIABLES HERE
 
 
-const char* keywords[22] = {
+const char* keywords[128] = {
         "class", "constructor", "function", "method", "field",
         "static", "var", "int", "char", "boolean", "void", "true",
         "false", "null", "this", "let", "do", "if", "else", "while", "return"
     };
+
+
+const char* symbols[128] = { "(", ")", "[", "]", "{", "}", ",", ";", "=", ".", "+", 
+"-", "*", "/", "&", "|", "~", "<", ">" };
 
 
 
@@ -116,7 +120,7 @@ Token GetNextToken() {
 
     // Check for EOF
   if (c == -1) {
-    strcpy(t.tp, EOFile);
+    t.tp = EOFile;
     return t;
   }
 
@@ -127,43 +131,43 @@ Token GetNextToken() {
   
   if (isalpha(c)) {
 
-  while (isalpha(c)) {
-    temp[i] = c;
-    i += 1;
-    c = getc(fp);
-  }
-  temp[i] = '/0';
-
-
-  for (int j = 0; j< 1; j++) {
-    if (strcmp(temp, keywords[j]) == 0) {
-      if (strcmp(temp, keywords[j] == 0)) {
-        strcpy(t.tp, RESWORD);
-        return t;
-      } else {
-        strcpy(t.tp, ID);
-        return t;
-      }
-    }
-  }
-  } else if (isdigit(c)) {
-
-      while (isdigit(c)) {
+    while (isalpha(c)) {
       temp[i] = c;
-      i += 1;
+      i ++;
       c = getc(fp);
     }
-    temp[i] = '/0'
-  }
+    temp[i] = '\0';
 
 
     for (int j = 0; j< 1; j++) {
       if (strcmp(temp, keywords[j]) == 0) {
-        if (strcmp(temp, keywords[j] == 0)) {
-          strcpy(t.tp, RESWORD);
+        if (strcmp(temp, keywords[j]) == 0) {
+          t.tp = RESWORD;
           return t;
         } else {
-          strcpy(t.tp, ID);
+          t.tp = ID;
+          return t;
+        }
+      }
+    }
+    } else if (isdigit(c)) {
+
+        while (isdigit(c)) {
+        temp[i] = c;
+        i += 1;
+        c = getc(fp);
+      }
+      //temp[i] = '/0'
+    }
+
+
+    for (int j = 0; j< 1; j++) {
+      if (strcmp(temp, keywords[j]) == 0) {
+        if (strcmp(temp, keywords[j]) == 0) {
+          t.tp = RESWORD;
+          return t;
+        } else {
+          t.tp = ID;
           return t;
         }
       }
@@ -185,11 +189,11 @@ Token GetNextToken() {
     while ((c != -1) && (c != '\0')) {
       if (i < 128) { // or is it 128 - 1
         temp[i] = c;
-        i += 1
-        c = getc(fp)
+        i += 1;
+        c = getc(fp);
       } else {
         // Error: string literal is too long
-        strcpy(t.lx, ERR);
+        strcpy(t.lx, "Literal String to Long");
         exit(1);
       }
 
@@ -201,7 +205,7 @@ Token GetNextToken() {
     }
 
     // Error: string literal was not terminated
-    strcpy(t.lx, ERR);
+    strcpy(t.lx, "Literal String Was Not Terminated");
     exit(1);
     }
 
@@ -214,44 +218,24 @@ Token GetNextToken() {
 
 
 
-
-
-  // Check for symbols
-  for (int j = 0; j < NUM_SYMBOLS; j++) {
-      if (c == symboif (c == -1) {
-    strcpy(t.tp, EOFile);
-    return t;
-  }
+  //Check for symbols
+  // for (int j = 0; j < 1; j++) {
+  //   if (strcmp(c, symbols[j])) {
+  //   t.tp = SYMBOL;
+  //   return t;
+  // }
+  // }
 
 
 
   // Invalid character
   strcpy(t.lx, "Error: illegal symbol in source file");
   return t;
-  }
 }
 
 
+
     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -271,29 +255,30 @@ Token PeekNextToken ()
   int start_column;
   int start_line;
 
-  start_column = column;
-  start_line = line;
+  // start_column = column;
+  // start_line = line;
 
   c = getc(fp);
 
   while (isspace(c)) {
     if (c == '\n') {
-      line++;
-      column = 0;
+      start_line++;
+      start_column = 0;
     } else {
-      column++;
+      start_column++;
     }
     c = fgetc(fp);
   }
 
   if (c == EOF) {
-    strcpy(t.tp, EOFile);
+    t.tp = EOFile;
     return t;
   }
 
   ungetc(c, fp);
-  column = start_column;
-  line = start_line;
+  // column = start_column;
+  // line = start_line;
+
 
   t = GetNextToken();
   return t;
@@ -321,10 +306,33 @@ int StopLexer ()
 
 // do not remove the next line
 #ifndef TEST
+
+char* TokenTypeString (TokenType t)
+{
+	switch (t)
+	{
+		case RESWORD: return "RESWORD";
+		case ID: return "ID";
+		case INT: return "INT";
+		case SYMBOL: return "SYMBOL";
+		case STRING: return "STRING";
+		case EOFile: return "EOFile";
+		case ERR: return "ERR";
+		default: return "Not a recognised token type";
+	}
+
+}
+
 int main ()
 {
 	// implement your main function here
   // NOTE: the autograder will not use your main function
+
+  Token t;
+
+
+
+  printf ("<%s, %i, %s, %s>\n", t.fl, t.ln , t.lx, TokenTypeString (t.tp));
 
   
 	return 0;
