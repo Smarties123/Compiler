@@ -69,6 +69,8 @@ int InitLexer (char* file_name)
 // Get the next token from the source file
 Token GetNextToken() {
 
+  
+
   Token t;
 
   int c = getc(fp);
@@ -79,42 +81,42 @@ Token GetNextToken() {
   // char c = *current_char;
 
  
-  // while (isspace(c) || c == '/') {
-  //   if (c == '/') {
-  //     // Check for comment
-  //     c = getc(fp);
-  //     if (c == '/') {
-  //       // Line comment - skip until end of line
-  //       while (c != '\n' && c != EOFile) {
-  //         c = getc(fp);
-  //       }
-  //   } else if (c == '*') {
-  //       // Block comment - skip until end of block
-  //       c = getc(fp);
-  //       int prev = ' ';
-  //       while (c != EOFile) {
-  //         if (prev == '*' && c == '/') {
-  //           break;
-  //         }
-  //         prev = c;
-  //         c = getc(fp);
-  //         c = getc(fp);
-  //         } 
-  //         }else {
-  //       // Not a comment
-  //         ungetc(c, fp);
-  //         break;
-  //         }
-  //     } else {
-  //       c = getc(fp);
-  //     }
-  //   }
-  // }
+  while (isspace(c) || c == '/') {
+    if (c == '/') {
+      // Check for comment
+      c = getc(fp);
+      if (c == '/') {
+        // Line comment - skip until end of line
+        while (c != '\n' && c != EOFile) {
+          c = getc(fp);
+        }
+    } else if (c == '*') {
+        // Block comment - skip until end of block
+        c = getc(fp);
+        int prev = ' ';
+        while (c != EOFile) {
+          if (prev == '*' && c == '/') {
+            break;
+          }
+          prev = c; // do i need this
+          c = getc(fp);
+          } 
+          }else {
+        // Not a comment
+          ungetc(c, fp);
+          break;
+          }
+      } else {
+        c = getc(fp);
+      }
+    }
   
 
     // Check for EOF
   if (c == -1) {
     t.tp = EOFile;
+    strcpy(t.lx, "End of File");
+    t.ln = INT - 1;
     return t;
   }
 
@@ -224,6 +226,10 @@ Token GetNextToken() {
 
   // Invalid character
   strcpy(t.lx, "Error: illegal symbol in source file");
+  t.tp = ERR;
+  //strcpy(t.fl, "IllegalSymbol.jack");
+  t.ln = INT;
+
   return t;
 }
 
@@ -322,9 +328,12 @@ int main ()
   setbuf(stdout, NULL);
   //fprintf(stdout, "Give the JACK File!");
   //gets(fileName);
-  InitLexer("Ball.jack");
 
 
+  //InitLexer("Ball.jack");
+  //InitLexer("IllegalSymbol.jack");
+  InitLexer("Empty.jack");
+  //InitLexer("OnlyComments.jack");
 
 
 
@@ -333,6 +342,7 @@ int main ()
   Token t;
 
   t = GetNextToken();
+  strcpy(t.fl, "Empty.jack");
 
   printf ("<%s, %i, %s, %s>\n", t.fl, t.ln , t.lx, TokenTypeString(t.tp));
 
