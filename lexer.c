@@ -69,7 +69,7 @@ int InitLexer (char* file_name)
 // Get the next token from the source file
 Token GetNextToken() {
 
-  
+  char prev;
 
   Token t;
 
@@ -89,7 +89,9 @@ Token GetNextToken() {
   while (c == '/') {
       // Check for comment
       //c = getc(fp);
-    if (c == '/') {
+      printf("%c\n", c);
+      
+    if (c == '/') { // I think it not exiting this if statement when it finishes the while loop
       // Line comment - skip until end of line
       while (c != '\n')  { // do new line after
         c = getc(fp);
@@ -98,17 +100,23 @@ Token GetNextToken() {
       }
       lineNumber += 1;
       c = getc(fp);
+      //break;
       //printf("%c", c);
   } else if (c == '*') {
       // Block comment - skip until end of block
+      //printf("A");
       c = getc(fp);
-      int prev = ' ';
       while (c != -1) {
+        c = getc(fp);
+        if (c == '\n') {
+          lineNumber += 1;
+        }
         if (prev == '*' && c == '/') {
           break;
         }
         prev = c; // do i need this
         c = getc(fp);
+        //printf("%c" ,prev);
       } 
     }else {
       // Not a comment
@@ -120,6 +128,8 @@ Token GetNextToken() {
       c = getc(fp);
     }
   }
+  // printf("%c", prev);
+  printf("%c", c);
     
 
     
@@ -245,9 +255,9 @@ Token GetNextToken() {
   // Invalid character
   strcpy(t.lx, "Error: illegal symbol in source file");
   t.tp = ERR;
+  lineNumber++;
   //strcpy(t.fl, "IllegalSymbol.jack");
   t.ln = lineNumber;
-
   return t;
 }
 
