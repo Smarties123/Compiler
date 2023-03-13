@@ -75,41 +75,54 @@ Token GetNextToken() {
 
   int c = getc(fp);
 
+  int lineNumber = 0;
+
   // may have to change *current_char into getc(fp)
   //t.type = ERR;
   
   // char c = *current_char;
+  while (isspace(c)) {
+    c = getc(fp);
+  }
 
  
-  while (isspace(c) || c == '/') {
-    if (c == '/') {
+  while (c == '/') {
       // Check for comment
-      c = getc(fp);
-      if (c == '/') {
-        // Line comment - skip until end of line
-        while (c != '\n' && c != EOFile) {
-          c = getc(fp);
-        }
-    } else if (c == '*') {
-        // Block comment - skip until end of block
+      //c = getc(fp);
+    if (c == '/') {
+      // Line comment - skip until end of line
+      while (c != '\n')  { // do new line after
         c = getc(fp);
-        int prev = ' ';
-        while (c != EOFile) {
-          if (prev == '*' && c == '/') {
-            break;
-          }
-          prev = c; // do i need this
-          c = getc(fp);
-          } 
-          }else {
-        // Not a comment
-          ungetc(c, fp);
-          break;
-          }
-      } else {
-        c = getc(fp);
+        //printf("hi");
+        //break;
       }
+      lineNumber += 1;
+      c = getc(fp);
+      //printf("%c", c);
+  } else if (c == '*') {
+      // Block comment - skip until end of block
+      c = getc(fp);
+      int prev = ' ';
+      while (c != -1) {
+        if (prev == '*' && c == '/') {
+          break;
+        }
+        prev = c; // do i need this
+        c = getc(fp);
+      } 
+    }else {
+      // Not a comment
+        ungetc(c, fp);
+        break;
+      }
+    
+    while(isspace(c)) {
+      c = getc(fp);
     }
+  }
+    
+
+    
   
 
     // Check for EOF
@@ -155,19 +168,24 @@ Token GetNextToken() {
       }
       //temp[i] = '/0'
     }
+    // if(c == '"') {
+    // // Start building the lexeme by adding the opening quote
+    // // char lexeme[MAX_LEXEME_LENGTH];
+    // // int lexemeLength = 0;
+    // temp[i++] = c;
 
+    // for (int j = 0; j< 1; j++) {
+    //   if (strcmp(temp, keywords[j]) == 0) {
+    //     if (strcmp(temp, keywords[j]) == 0) {
+    //       t.tp = RESWORD;
+    //       return t;
+    //     } else {
+    //       t.tp = ID;
+    //       return t;
+    //     }
+    //   }
+    // }
 
-    for (int j = 0; j< 1; j++) {
-      if (strcmp(temp, keywords[j]) == 0) {
-        if (strcmp(temp, keywords[j]) == 0) {
-          t.tp = RESWORD;
-          return t;
-        } else {
-          t.tp = ID;
-          return t;
-        }
-      }
-    }
   
 
 
@@ -228,7 +246,7 @@ Token GetNextToken() {
   strcpy(t.lx, "Error: illegal symbol in source file");
   t.tp = ERR;
   //strcpy(t.fl, "IllegalSymbol.jack");
-  t.ln = INT;
+  t.ln = lineNumber;
 
   return t;
 }
@@ -330,10 +348,10 @@ int main ()
   //gets(fileName);
 
 
-  //InitLexer("Ball.jack");
+  // InitLexer("Ball.jack");
   //InitLexer("IllegalSymbol.jack");
-  InitLexer("Empty.jack");
-  //InitLexer("OnlyComments.jack");
+  //InitLexer("Empty.jack");
+  InitLexer("OnlyComments.jack");
 
 
 
@@ -342,7 +360,7 @@ int main ()
   Token t;
 
   t = GetNextToken();
-  strcpy(t.fl, "Empty.jack");
+  strcpy(t.fl, "OnlyComments.jack");
 
   printf ("<%s, %i, %s, %s>\n", t.fl, t.ln , t.lx, TokenTypeString(t.tp));
 
