@@ -81,21 +81,35 @@ Token GetNextToken() {
   //t.type = ERR;
   
   // char c = *current_char;
-  while (isspace(c)) {
-    c = getc(fp);
-  }
+  while(isspace(c)) {
+      if (c == '\n') {
+        lineNumber += 1;
+      }
+      c = getc(fp);
+    }
+  
 
  
   while (c == '/') {
       // Check for comment
       //c = getc(fp);
-      printf("%c\n", c);
-      
+      //printf("%c\n", c);
+    // while (isspace(c)) {
+    // c = getc(fp);
+    // }
+    c = getc(fp);
+    
     if (c == '/') { // I think it not exiting this if statement when it finishes the while loop
       // Line comment - skip until end of line
       while (c != '\n')  { // do new line after
+      // if (c == -1) {
+      //   t.ln = lineNumber;
+      //   strcpy(t.lx, "Error: unexpected eof in comment");
+      //   t.tp = ERR;
+      //   exit(0);
+      // }
         c = getc(fp);
-        //printf("hi");
+        // printf("%c",c);
         //break;
       }
       lineNumber += 1;
@@ -105,19 +119,29 @@ Token GetNextToken() {
   } else if (c == '*') {
       // Block comment - skip until end of block
       //printf("A");
-      c = getc(fp);
+      //c = getc(fp);
       while (c != -1) {
-        c = getc(fp);
+        // c = getc(fp);
         if (c == '\n') {
           lineNumber += 1;
         }
         if (prev == '*' && c == '/') {
+          //prev = c;
+          // c = getc(fp);
+          // printf("%c", prev);
+          // printf("%c", c);
+          
           break;
         }
         prev = c; // do i need this
         c = getc(fp);
-        //printf("%c" ,prev);
+        // printf("%c" ,prev);
+        // exit(1);
       } 
+      // lineNumber += 1;
+      prev = c;
+      c = getc(fp);
+      // printf("%c", c);
     }else {
       // Not a comment
         ungetc(c, fp);
@@ -125,11 +149,21 @@ Token GetNextToken() {
       }
     
     while(isspace(c)) {
+      if (c == '\n') {
+        lineNumber += 1;
+      }
       c = getc(fp);
     }
   }
   // printf("%c", prev);
-  printf("%c", c);
+  // printf("%c", c);
+
+
+  
+
+
+
+
     
 
     
@@ -139,7 +173,7 @@ Token GetNextToken() {
   if (c == -1) {
     t.tp = EOFile;
     strcpy(t.lx, "End of File");
-    t.ln = INT - 1;
+    t.ln = lineNumber;
     return t;
   }
 
@@ -359,9 +393,11 @@ int main ()
 
 
   // InitLexer("Ball.jack");
-  //InitLexer("IllegalSymbol.jack");
+  // InitLexer("IllegalSymbol.jack");
   //InitLexer("Empty.jack");
-  InitLexer("OnlyComments.jack");
+  // InitLexer("OnlyComments.jack");
+  InitLexer("EoflnComment.jack");
+
 
 
 
@@ -370,7 +406,7 @@ int main ()
   Token t;
 
   t = GetNextToken();
-  strcpy(t.fl, "OnlyComments.jack");
+  strcpy(t.fl, "EofInComment.jack");
 
   printf ("<%s, %i, %s, %s>\n", t.fl, t.ln , t.lx, TokenTypeString(t.tp));
 
